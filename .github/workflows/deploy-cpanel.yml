@@ -1,0 +1,66 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cpanel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build -- --webpack
+
+      - name: Prepare deploy directory
+        run: |
+          rm -rf deploy-package
+          mkdir -p deploy-package
+          cp -R .next/standalone/* deploy-package/
+          mkdir -p deploy-package/.next
+          cp -R .next/static deploy-package/.next/static
+          if [ -d public ]; then cp -R public deploy-package/public; fi
+          cat > deploy-package/app.js <<'EOF'
+          require("./server.js");
+          EOF
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.CPANEL_SSH_PORT }}" -H "${{ secrets.CPANEL_SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync files to cPanel
+        run: |
+          rsync -az --delete \
+            --exclude='.htaccess' \
+            --exclude='tmp/' \
+            deploy-package/ \
+            "${{ secrets.CPANEL_SSH_USER }}@${{ secrets.CPANEL_SSH_HOST }}:${{ secrets.CPANEL_APP_ROOT }}/"
+
+      - name: Restart Passenger app
+        run: |
+          ssh -p "${{ secrets.CPANEL_SSH_PORT }}" "${{ secrets.CPANEL_SSH_USER }}@${{ secrets.CPANEL_SSH_HOST }}" \
+            "mkdir -p '${{ secrets.CPANEL_APP_ROOT }}/tmp' && touch '${{ secrets.CPANEL_APP_ROOT }}/tmp/restart.txt'"

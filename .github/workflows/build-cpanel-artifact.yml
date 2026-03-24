@@ -1,0 +1,51 @@
+name: Build cPanel Deploy Artifact
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build -- --webpack
+
+      - name: Prepare cPanel deploy package
+        run: |
+          rm -rf deploy-package
+          mkdir -p deploy-package
+          cp -R .next/standalone/* deploy-package/
+          mkdir -p deploy-package/.next
+          cp -R .next/static deploy-package/.next/static
+          if [ -d public ]; then cp -R public deploy-package/public; fi
+          cat > deploy-package/app.js <<'EOF'
+          require("./server.js");
+          EOF
+
+      - name: Create zip archive
+        run: |
+          cd deploy-package
+          zip -r ../next-wegagen-com-deploy.zip .
+
+      - name: Upload deploy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-wegagen-com-deploy
+          path: next-wegagen-com-deploy.zip
+          if-no-files-found: error

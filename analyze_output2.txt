@@ -1,0 +1,30 @@
+
+--- TAB 10 ---
+H3s: Key Features, Basic Requirements
+H4s: Tila (Tsilal) Local Saving Account, Tila (Tsilal) Diaspora Saving Account, Tila Local Saving Account, Tila Diaspora Saving Account
+Lists: No Roman
+
+--- TAB 15 ---
+H3s: Products and Services:, Key Features, Basic Requirements
+H4s: Description, 1. ECX-level account ECX settlement account, 2. Member-level account (per member)
+Lists: No Roman
+
+--- TAB 18 ---
+H3s: Eligible Entities
+H4s: 
+Lists: No Roman
+
+--- TAB 19 ---
+H3s: Key Features, Basic Requirements
+H4s: Description, NR Non-transferable Birr account shall be credited only with:
+Lists: Has Roman
+
+--- TAB 20 ---
+H3s: Key Features, Basic Requirements
+H4s: Description, Eligible Individuals:
+Lists: No Roman
+
+--- TAB 21 ---
+H3s: Key Features
+H4s: Description
+Lists: No Roman
