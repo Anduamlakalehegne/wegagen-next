@@ -7,7 +7,6 @@ export const ACCOUNT_TYPES = [
     "features": [
       "Bears Interest which is calculated on the minimum balance of the month.",
       "Account can be opened with or without passbook as per the customer preference.",
-      "Account can be linked with Digital banking services such as ATM card, Internet banking and Mobile banking access."
     ],
     "requirements": [
       "Individual account can be opened after delivering a valid and renewed Identification Card (ID card) which shall bear:",
